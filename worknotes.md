@@ -1,3 +1,10 @@
+- [ ] Collect dataset
+- [ ] Run model in Colab with options
+
+#### 28.09.20
+
+- [x] Improve parser: it must be able to convert videos to dataset (array of 30-frames sequences)
+
 #### 25.09.20
 
 - [x] Finish a parser
