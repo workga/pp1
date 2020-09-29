@@ -96,6 +96,8 @@ def download_toks(toks, subdir=""):
         response = urllib.request.urlopen(request)
 
         #только если файла нет!
+        if os.path.isfile(PATH  + subdir + "\\"+ str(id) + ".mp4"):
+            continue
         with open((PATH  + subdir + "\\"+ str(id) + ".mp4"), "wb") as f_video:
             f_video.write(response.read())
             
@@ -127,7 +129,7 @@ def use_fmp(width, height, duration, path_from, path_to):
     out.run_async()
 
 def to_frames(path_from, path_to):
-    os.system("ffmpeg -r 1 -i {0} -r 1 {1}".format(path_from, path_to + "\\%03d.jpg"))
+    os.system("ffmpeg -r 1 -i {0} -r 1 {1}".format(path_from, path_to + "\\%06d.jpg"))
     
 def edit_videos(subdir):
     try:
@@ -152,14 +154,13 @@ def edit_videos(subdir):
         
         try:
             os.mkdir(path_to)
+            to_frames(path_from, path_to)
         except FileExistsError:
             pass
         try:
             os.mkdir(path_seqs)
         except FileExistsError:
             pass
-        
-        to_frames(path_from, path_to)
         
         files = os.listdir(path_to)
         N = len(files)//N_FRAMES
@@ -171,9 +172,9 @@ def edit_videos(subdir):
             except FileExistsError:
                 pass
             i += 1
-            
+
             for frame in seq:
-                shutil.move(path_to + "\\" + frame, path_seq + frame)
+                shutil.copy(path_to + "\\" + frame, path_seq + frame)
                 
         '''
         use_fmp(tok["itemInfos"]["video"]["videoMeta"]["width"],
