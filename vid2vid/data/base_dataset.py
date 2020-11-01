@@ -9,7 +9,7 @@ import random
 import imgaug
 from imgaug import augmenters as I
 
-import aug
+import config
 
 class BaseDataset(data.Dataset):
     def __init__(self):
@@ -154,7 +154,7 @@ def get_transform(opt, params, method=Image.BICUBIC, normalize=True, toTensor=Tr
         transform_list.append(transforms.Lambda(lambda img: np.array(img)))
     #no_flip means augmentation
     if isMap and self.opt.no_flip:
-        transform_list.append(aug.get_aug())
+        transform_list.append(config.get_aug())
     #.................................................................................................................
     if toTensor:
         transform_list += [transforms.ToTensor()]

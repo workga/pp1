@@ -8,12 +8,16 @@ from data.image_folder import make_grouped_dataset, check_path_valid
 from PIL import Image
 import numpy as np
 
+import config
+
 class TemporalDataset(BaseDataset):
     def initialize(self, opt):
         self.opt = opt
         self.root = opt.dataroot
-        self.dir_A = os.path.join(opt.dataroot, opt.phase + '_A')
-        self.dir_B = os.path.join(opt.dataroot, opt.phase + '_B')
+        #self.dir_A = os.path.join(opt.dataroot, opt.phase + '_A')
+        #self.dir_B = os.path.join(opt.dataroot, opt.phase + '_B')
+        self.dir_A = os.path.join(opt.dataroot, config.get_path_A())
+        self.dir_B = os.path.join(opt.dataroot, config.get_path_B())
         self.A_is_label = self.opt.label_nc != 0
 
         self.A_paths = sorted(make_grouped_dataset(self.dir_A))
