@@ -6,6 +6,11 @@ import torchvision.transforms as transforms
 import numpy as np
 import random
 
+import imgaug
+from imgaug import augmenters as I
+
+import aug
+
 class BaseDataset(data.Dataset):
     def __init__(self):
         super(BaseDataset, self).__init__()
@@ -127,7 +132,7 @@ def get_img_params(opt, size):
     flip = (random.random() > 0.5) and (opt.dataset_mode != 'pose')
     return {'new_size': (new_w, new_h), 'crop_size': (crop_w, crop_h), 'crop_pos': (crop_x, crop_y), 'flip': flip}
 
-def get_transform(opt, params, method=Image.BICUBIC, normalize=True, toTensor=True):
+def get_transform(opt, params, method=Image.BICUBIC, normalize=True, toTensor=True, isMap=False):
     transform_list = []
     ### resize input image
     if 'resize' in opt.resize_or_crop:
@@ -144,6 +149,13 @@ def get_transform(opt, params, method=Image.BICUBIC, normalize=True, toTensor=Tr
     if opt.isTrain and not opt.no_flip:
         transform_list.append(transforms.Lambda(lambda img: __flip(img, params['flip'])))
 
+    #.................................................................................................................
+    #from PIL image to numpy array
+        transform_list.append(transforms.Lambda(lambda img: np.array(img)))
+    #no_flip means augmentation
+    if isMap and self.opt.no_flip:
+        transform_list.append(aug.get_aug())
+    #.................................................................................................................
     if toTensor:
         transform_list += [transforms.ToTensor()]
     if normalize:

@@ -34,7 +34,8 @@ class TestDataset(BaseDataset):
         A_img = Image.open(self.A_paths[seq_idx][0]).convert('RGB')        
         params = get_img_params(self.opt, A_img.size)
         transform_scaleB = get_transform(self.opt, params)
-        transform_scaleA = get_transform(self.opt, params, method=Image.NEAREST, normalize=False) if self.A_is_label else transform_scaleB
+        #transform_scaleA = get_transform(self.opt, params, method=Image.NEAREST, normalize=False) if self.A_is_label else transform_scaleB
+        transform_scaleA = get_transform(self.opt, params, isMap=True)
         frame_range = list(range(tG)) if self.A is None else [tG-1]
            
         for i in frame_range:                                                   
