@@ -16,8 +16,8 @@ class TemporalDataset(BaseDataset):
         self.root = opt.dataroot
         #self.dir_A = os.path.join(opt.dataroot, opt.phase + '_A')
         #self.dir_B = os.path.join(opt.dataroot, opt.phase + '_B')
-        self.dir_A = os.path.join(opt.dataroot, config.get_path_A())
-        self.dir_B = os.path.join(opt.dataroot, config.get_path_B())
+        self.dir_A = os.path.join(opt.dataroot, config.train_A))
+        self.dir_B = os.path.join(opt.dataroot, config.train_B)
         self.A_is_label = self.opt.label_nc != 0
 
         self.A_paths = sorted(make_grouped_dataset(self.dir_A))

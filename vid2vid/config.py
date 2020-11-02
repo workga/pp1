@@ -4,11 +4,18 @@ from imgaug import augmenters as I
 
 #......................PARAMETERS...........................#
 
-path_A = "config_test"
-path_B = "config_test"
-seed   = 0;
-seq    = [I.Grayscale(alpha=1.0),
-          I.KMeansColorQuantization(n_colors=3)]
+train_A = 'config_train'
+train_B = 'config_train'
+
+test_A  = 'config_test'
+test_B  = 'config_test'
+
+seed    = 0;
+
+aug_n   = 0;
+augs    = [[I.Grayscale(alpha=1.0),
+            I.KMeansColorQuantization(n_colors=3)],
+           [I.KMeansColorQuantization(n_colors=3)]]
 
 #...........................................................#
 
@@ -18,12 +25,6 @@ else:
     imgaug.seed(np.random.randint(0, 100000))
 
 def get_aug():
-    return I.Sequential(seq).augment_image
-
-def get_path_A():    
-    return path_A
-
-def get_path_B():    
-    return path_B
+    return I.Sequential(augs[aug_n]).augment_image
 
     
