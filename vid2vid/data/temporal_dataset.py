@@ -8,16 +8,14 @@ from data.image_folder import make_grouped_dataset, check_path_valid
 from PIL import Image
 import numpy as np
 
-import config
-
 class TemporalDataset(BaseDataset):
     def initialize(self, opt):
         self.opt = opt
         self.root = opt.dataroot
-        #self.dir_A = os.path.join(opt.dataroot, opt.phase + '_A')
-        #self.dir_B = os.path.join(opt.dataroot, opt.phase + '_B')
-        self.dir_A = os.path.join(opt.dataroot, config.train_A)
-        self.dir_B = os.path.join(opt.dataroot, config.train_B)
+        self.dir_A = os.path.join(opt.dataroot, self.opt.train_A)
+        self.dir_B = os.path.join(opt.dataroot, self.opt.train_B)
+
+
         self.A_is_label = self.opt.label_nc != 0
 
         self.A_paths = sorted(make_grouped_dataset(self.dir_A))
@@ -33,6 +31,9 @@ class TemporalDataset(BaseDataset):
         self.n_frames_total = self.opt.n_frames_total      # current number of frames to train in a single iteration
 
     def __getitem__(self, index):
+        #where is it calling from?
+        #pass epoch and iter here
+
         tG = self.opt.n_frames_G
         A_paths = self.A_paths[index % self.n_of_seqs]
         B_paths = self.B_paths[index % self.n_of_seqs]                
@@ -46,7 +47,6 @@ class TemporalDataset(BaseDataset):
         B_img = Image.open(B_paths[start_idx]).convert('RGB')        
         params = get_img_params(self.opt, B_img.size)          
         transform_scaleB = get_transform(self.opt, params)
-        #transform_scaleA = get_transform(self.opt, params, method=Image.NEAREST, normalize=False) if self.A_is_label else transform_scaleB
         transform_scaleA = get_transform(self.opt, params, isMap=True)
                                          
         # read in images

@@ -11,7 +11,11 @@ from models.models import create_model, create_optimizer, init_params, save_mode
 import util.util as util
 from util.visualizer import Visualizer
 
+import warnings
+
 def train():
+    warnings.filterwarnings("ignore")
+    
     opt = TrainOptions().parse()
     if opt.debug:
         opt.display_freq = 1
@@ -81,16 +85,17 @@ def train():
                 # collect losses
                 loss_G, loss_D, loss_D_T, t_scales_act = modelD.module.get_losses(loss_dict, loss_dict_T, t_scales)
 
-                ###################################### Backward Pass #################################                 
-                # update generator weights     
-                loss_backward(opt, loss_G, optimizer_G)                
+                ###################################### Backward Pass #################################
+                if not opt.validate:
+                    # update generator weights
+                    loss_backward(opt, loss_G, optimizer_G)
 
-                # update individual discriminator weights                
-                loss_backward(opt, loss_D, optimizer_D)
+                    # update individual discriminator weights
+                    loss_backward(opt, loss_D, optimizer_D)
 
-                # update temporal discriminator weights
-                for s in range(t_scales_act):                    
-                    loss_backward(opt, loss_D_T[s], optimizer_D_T[s])
+                    # update temporal discriminator weights
+                    for s in range(t_scales_act):
+                        loss_backward(opt, loss_D_T[s], optimizer_D_T[s])
 
                 if i == 0: fake_B_first = fake_B[0, 0]   # the first generated image in this sequence
 
@@ -99,6 +104,7 @@ def train():
 
             ############## Display results and errors ##########
             ### print out errors
+
             if total_steps % print_freq == 0:
                 t = (time.time() - iter_start_time) / print_freq
                 errors = {k: v.data.item() if not isinstance(v, int) else v for k, v in loss_dict.items()}
@@ -113,19 +119,28 @@ def train():
                 visualizer.display_current_results(visuals, epoch, total_steps)
 
             ### save latest model
-            save_models(opt, epoch, epoch_iter, total_steps, visualizer, iter_path, modelG, modelD)            
+            if not opt.validate:
+                save_models(opt, epoch, epoch_iter, total_steps, visualizer, iter_path, modelG, modelD)
             if epoch_iter > dataset_size - opt.batchSize:
                 epoch_iter = 0
                 break
            
         # end of epoch 
         iter_end_time = time.time()
+
+        '''
+        if opt.validate:
+                epoch_out = int(opt.which_epoch)
+        else:
+                epoch_out = epoch
+        '''
         visualizer.vis_print('End of epoch %d / %d \t Time Taken: %d sec' %
               (epoch, opt.niter + opt.niter_decay, time.time() - epoch_start_time))
 
         ### save model for this epoch and update model params
-        save_models(opt, epoch, epoch_iter, total_steps, visualizer, iter_path, modelG, modelD, end_of_epoch=True)
-        update_models(opt, epoch, modelG, modelD, data_loader) 
+        if not opt.validate:
+            save_models(opt, epoch, epoch_iter, total_steps, visualizer, iter_path, modelG, modelD, end_of_epoch=True)
+            update_models(opt, epoch, modelG, modelD, data_loader)
 
 def loss_backward(opt, loss, optimizer):
     optimizer.zero_grad()                

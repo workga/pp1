@@ -149,15 +149,17 @@ def get_transform(opt, params, method=Image.BICUBIC, normalize=True, toTensor=Tr
     if opt.isTrain and not opt.no_flip:
         transform_list.append(transforms.Lambda(lambda img: __flip(img, params['flip'])))
 
-    #.............................AUGMENTATION...............................#
+#............................AUGMENTATION...............................#
         
     #from PIL image to numpy array
     transform_list.append(transforms.Lambda(lambda img: np.array(img)))
-    #no_flip means augmentation
+    #no_flip means augmentationfor maps else add noise to real
     if isMap and opt.no_flip:
-        transform_list.append(config.get_aug())
-        
-    #........................................................................#
+        transform_list.append(config.get_aug(opt.n_aug))
+    #add seeded augmentations
+    #where will noise be?
+
+#........................................................................#
     if toTensor:
         transform_list += [transforms.ToTensor()]
     if normalize:

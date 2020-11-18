@@ -102,10 +102,21 @@ def create_optimizer(opt, models):
     return modelG, modelD, flowNet, optimizer_G, optimizer_D, optimizer_D_T
 
 def init_params(opt, modelG, modelD, data_loader):
+    '''
+    if opt.validate:
+        iter_name = 'iter_val.txt'
+        start_epoch, epoch_iter = int(opt.which_epoch), 0
+    else:
+        iter_name = 'iter.txt'
+        start_epoch, epoch_iter = 1, 0
+
+    iter_path = os.path.join(opt.checkpoints_dir, opt.name, iter_name)
+    '''
     iter_path = os.path.join(opt.checkpoints_dir, opt.name, 'iter.txt')
     start_epoch, epoch_iter = 1, 0
     ### if continue training, recover previous states
-    if opt.continue_train:        
+    #if opt.continue_train or (opt.load_pretrain and opt.validate)
+    if opt.continue_train:
         if os.path.exists(iter_path):
             start_epoch, epoch_iter = np.loadtxt(iter_path , delimiter=',', dtype=int)        
         print('Resuming from epoch %d at iteration %d' % (start_epoch, epoch_iter))   

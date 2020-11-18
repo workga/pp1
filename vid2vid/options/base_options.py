@@ -82,6 +82,15 @@ class BaseOptions():
         self.parser.add_argument('--fp16', action='store_true', default=False, help='train with AMP')
         self.parser.add_argument('--local_rank', type=int, default=0, help='local rank for distributed training')
 
+        #USER OPTIONS
+        self.parser.add_argument('--validate', action='store_true', help='if specified, validate')
+        self.parser.add_argument('--n_aug', type=int, default=0, help='number of augmentation')
+        self.parser.add_argument('--train_A', type=str, default='train_B_3004x30', help='train_A data folder')
+        self.parser.add_argument('--train_B', type=str, default='train_B_3004x30', help='train_B data folder')
+        self.parser.add_argument('--test_A', type=str, default='test_B_496x30', help='test_A folder')
+        self.parser.add_argument('--test_B', type=str, default='test_B_496x30', help='test_B folder')
+
+
         self.initialized = True
 
     def parse_str(self, ids):
@@ -108,6 +117,10 @@ class BaseOptions():
         if len(self.opt.gpu_ids) > 0:
             torch.cuda.set_device(self.opt.gpu_ids[0])
 
+        if self.opt.validate:
+            self.opt.train_A = self.opt.test_A
+            self.opt.train_B = self.opt.test_B
+
         args = vars(self.opt)
 
         print('------------ Options -------------')
@@ -115,11 +128,16 @@ class BaseOptions():
             print('%s: %s' % (str(k), str(v)))
         print('-------------- End ----------------')
 
-        # save to the disk        
+        # save to the disk
+        if self.opt.validate:
+            opt_name = 'opt_val.txt'
+        else:
+            opt_name = 'opt.txt'
+
         expr_dir = os.path.join(self.opt.checkpoints_dir, self.opt.name)
         util.mkdirs(expr_dir)
         if save:
-            file_name = os.path.join(expr_dir, 'opt.txt')
+            file_name = os.path.join(expr_dir, opt_name)
             with open(file_name, 'wt') as opt_file:
                 opt_file.write('------------ Options -------------\n')
                 for k, v in sorted(args.items()):

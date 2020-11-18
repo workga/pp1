@@ -18,18 +18,30 @@ class Visualizer():
         self.use_html = opt.isTrain and not opt.no_html
         self.win_size = opt.display_winsize
         self.name = opt.name
+
+        if self.opt.validate:
+            logs_name = 'logs_val'
+            web_name  = 'web_val'
+            loss_name = 'loss_log_val.txt'
+
+        else:
+            logs_name = 'logs'
+            web_name = 'web'
+            loss_name = 'loss_log.txt'
+
         if self.tf_log:
             import tensorflow as tf
             self.tf = tf
-            self.log_dir = os.path.join(opt.checkpoints_dir, opt.name, 'logs')
-            self.writer = tf.summary.FileWriter(self.log_dir)
+
+            self.log_dir = os.path.join(opt.checkpoints_dir, opt.name, logs_name)
+            self.writer = tf.summary.create_file_writer(self.log_dir)
 
         if self.use_html:
-            self.web_dir = os.path.join(opt.checkpoints_dir, opt.name, 'web')
+            self.web_dir = os.path.join(opt.checkpoints_dir, opt.name, web_name)
             self.img_dir = os.path.join(self.web_dir, 'images')
             print('create web directory %s...' % self.web_dir)
             util.mkdirs([self.web_dir, self.img_dir])
-        self.log_name = os.path.join(opt.checkpoints_dir, opt.name, 'loss_log.txt')
+        self.log_name = os.path.join(opt.checkpoints_dir, opt.name, loss_name)
         with open(self.log_name, "a") as log_file:
             now = time.strftime("%c")
             log_file.write('================ Training Loss (%s) ================\n' % now)
